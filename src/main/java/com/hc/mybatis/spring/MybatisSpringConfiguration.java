@@ -12,6 +12,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import javax.sql.DataSource;
 
 /**
+ * mybaits-spring 常规型配置
  * @author 李晓冰
  * @date 2020年12月18日
  */
@@ -46,8 +47,10 @@ public class MybatisSpringConfiguration {
     }
 
     /**
-     * 配置事务管理器，这样spring才可以开启其事务管理功能,注意：这个bean和mybaits其实没关系
+     * 配置事务管理器，这样spring才可以开启其事务管理功能,注意：这个bean和mybaits其实没关系。
      * 如何想有关系的话，就是使用同一个datasource来创建这个类。
+     * 被spring管理了事务后，我们就算通过sqlSession获取connection后也不能自己调用commit(),rollback()方法。
+     * 调用了也没有，要想进行编程性事务的话自己看mybatis-spring事务的内容
      * @param dataSource 必须和sqlSessionFactory是同一个dataSource,否则mybatis不能被spring进行事务管理。
      * @return 事务管理器
      */
