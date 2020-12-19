@@ -20,7 +20,7 @@ public class MybatisSpringConfiguration {
 
     @Bean(name = "dataSource")
     DataSource dataSource(@Value("${driver}") String driver,@Value("${url}") String url,
-                          @Value("${username}") String username,@Value("${password}") String password){
+                          @Value("${name}") String username,@Value("${password}") String password){
         PooledDataSource dataSource =new PooledDataSource();
         dataSource.setDriver(driver);
         dataSource.setUrl(url);
