@@ -1,10 +1,14 @@
 package com.hc.mybatis.spring;
 
+import com.hc.mybatis.spring.dao.UserMapper;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.mybatis.spring.annotation.MapperScan;
+import org.mybatis.spring.mapper.MapperFactoryBean;
+import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +25,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @PropertySource("classpath:mybatis/jdbc.properties")
+@MapperScan("com.hc.mybatis.spring.dao" )
 public class MybatisSpringConfiguration {
 
     @Bean(name = "dataSource")
@@ -80,5 +85,35 @@ public class MybatisSpringConfiguration {
     @Bean
     public SqlSession sqlSession(SqlSessionFactory sqlSessionFactory) {
         return new SqlSessionTemplate(sqlSessionFactory);
+    }
+
+    /**
+     * Mybatis 映射器配置方案
+     * 1. 通过MapperFactoryBean进行设置，设置是需要指定该类的sqlSessionFactory属性，和这个类需要代表的接口类名。
+     *    这里通过泛型的方式进行配置。如果映射器对应的xml文件和接口类在一起的话，xml文件也会被解析，否则就需要单独配置mapperLocations属性。
+     * 2. 第一种方式是一个一个配置的，有一个映射器就需要一个这样的mapper。可以通过配置、注解、代码进行自动化扫描配置。
+     *    1）<mybatis:scan/> xml配置使用
+     *    2）@MapperScan 在@Configure类上通过注解配置
+     *    3）MapperScannerConfigurer 类代码实现。
+     *      对于第1)和2)方式，过滤接口时可以通过指定标记接口或者指定的注解来表示要过滤出哪些接口(前者表示接口必选继承某一个指定接口，后者表示接口必须有哪些注解)。
+     *    两个是与的关系，默认是都没设置（所有接口都加载）。spring会按照组件默认命名规则对映射器进行命名。我们可以通过添加@Component或者JSR-330的@Name注解进行
+     *    指定。提醒一下，你可以设置 annotation 属性为你自定义的注解，然后在你的注解上设置@Component或@Name。这样你自定义的注解就可以同时拥有过滤和命名的能力了。
+     *
+     * @param sqlSessionFactory
+     * @return
+     */
+//    @Bean
+    public MapperFactoryBean<UserMapper> userMapper(SqlSessionFactory sqlSessionFactory){
+        MapperFactoryBean<UserMapper> factoryBean = new MapperFactoryBean<>();
+        factoryBean.setSqlSessionFactory(sqlSessionFactory);
+        return factoryBean;
+    }
+//    @Bean
+    public MapperScannerConfigurer mapperScannerConfigurer(){
+        MapperScannerConfigurer mapperScannerConfigurer = new MapperScannerConfigurer();
+        mapperScannerConfigurer.setBasePackage("com.hc.mybatis.spring.dao");
+        // 可以指定sqlSessionFactory实例在spring中的名字
+        mapperScannerConfigurer.setSqlSessionFactoryBeanName("sqlSessionFactory");
+        return mapperScannerConfigurer;
     }
 }
