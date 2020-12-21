@@ -1,8 +1,10 @@
 package com.hc.mybatis.spring;
 
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +23,9 @@ import javax.sql.DataSource;
 public class MybatisSpringConfiguration {
 
     @Bean(name = "dataSource")
-    DataSource dataSource(@Value("${driver}") String driver,@Value("${url}") String url,
-                          @Value("${name}") String username,@Value("${password}") String password){
-        PooledDataSource dataSource =new PooledDataSource();
+    DataSource dataSource(@Value("${driver}") String driver, @Value("${url}") String url,
+                          @Value("${name}") String username, @Value("${password}") String password) {
+        PooledDataSource dataSource = new PooledDataSource();
         dataSource.setDriver(driver);
         dataSource.setUrl(url);
         dataSource.setUsername(username);
@@ -34,7 +36,7 @@ public class MybatisSpringConfiguration {
     @Bean
     SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         // 这各类实现了FactoryBean接口哦
-        SqlSessionFactoryBean sqlSessionFactoryBean =new SqlSessionFactoryBean();
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // 配置项，configuration里面environments、DataSource、transactionManager这些项不用设置，
         // 主要用来设置settings、typeAliases一些配置。
@@ -43,7 +45,7 @@ public class MybatisSpringConfiguration {
         configuration.setMapUnderscoreToCamelCase(true);
         sqlSessionFactoryBean.setConfiguration(configuration);
 
-        return  sqlSessionFactoryBean.getObject();
+        return sqlSessionFactoryBean.getObject();
     }
 
     /**
@@ -55,7 +57,25 @@ public class MybatisSpringConfiguration {
      * @return 事务管理器
      */
     @Bean
-    public DataSourceTransactionManager transactionManager(DataSource dataSource){
+    public DataSourceTransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
+    }
+
+    /**
+     * sqlSessionTemplate是mybatis-spring 提供的一个类。使用时这个类可以保证sqlSession的线程安全性，管理sqlSession
+     * 的生命周期和必要的关闭、提交和回滚事务操作。在实现自己的dao时如何想使用sqlSession的话，应该总是使用SqlSessionTemplate
+     * public class UserDaoImpl implements UserDao {
+     *   @autowired
+     *   private SqlSession sqlSession;
+     *   public User getUser(String userId) {
+     *     return sqlSession.selectOne("org.mybatis.spring.sample.mapper.UserMapper.getUser", userId);
+     *   }
+     * }
+     * @param sqlSessionFactory
+     * @return
+     */
+    @Bean
+    public SqlSession sqlSession(SqlSessionFactory sqlSessionFactory) {
+        return new SqlSessionTemplate(sqlSessionFactory);
     }
 }
