@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
@@ -44,6 +45,9 @@ public class MybatisSpringConfiguration {
         configuration.setCacheEnabled(false);
         configuration.setMapUnderscoreToCamelCase(true);
         sqlSessionFactoryBean.setConfiguration(configuration);
+        // 配置映射文件xml的位置，如果对应的映射器类和xml文件在一个位置，那么可以忽略
+        PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
+        sqlSessionFactoryBean.setMapperLocations(pathMatchingResourcePatternResolver.getResource("classpath*:/mybatis/mappers/*.xml"));
 
         return sqlSessionFactoryBean.getObject();
     }
@@ -65,14 +69,13 @@ public class MybatisSpringConfiguration {
      * sqlSessionTemplate是mybatis-spring 提供的一个类。使用时这个类可以保证sqlSession的线程安全性，管理sqlSession
      * 的生命周期和必要的关闭、提交和回滚事务操作。在实现自己的dao时如何想使用sqlSession的话，应该总是使用SqlSessionTemplate
      * public class UserDaoImpl implements UserDao {
-     *   @autowired
-     *   private SqlSession sqlSession;
-     *   public User getUser(String userId) {
-     *     return sqlSession.selectOne("org.mybatis.spring.sample.mapper.UserMapper.getUser", userId);
-     *   }
-     * }
      * @param sqlSessionFactory
      * @return
+     * @autowired private SqlSession sqlSession;
+     * public User getUser(String userId) {
+     * return sqlSession.selectOne("org.mybatis.spring.sample.mapper.UserMapper.getUser", userId);
+     * }
+     * }
      */
     @Bean
     public SqlSession sqlSession(SqlSessionFactory sqlSessionFactory) {
