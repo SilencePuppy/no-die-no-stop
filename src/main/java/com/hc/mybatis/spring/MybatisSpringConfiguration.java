@@ -1,6 +1,6 @@
 package com.hc.mybatis.spring;
 
-import com.hc.mybatis.spring.dao.UserMapper;
+import com.hc.mybatis.spring.dao.OrgMapper;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
@@ -52,7 +53,8 @@ public class MybatisSpringConfiguration {
         sqlSessionFactoryBean.setConfiguration(configuration);
         // 配置映射文件xml的位置，如果对应的映射器类和xml文件在一个位置，那么可以忽略
         PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
-        sqlSessionFactoryBean.setMapperLocations(pathMatchingResourcePatternResolver.getResource("classpath*:/mybatis/mappers/*.xml"));
+        Resource resource = pathMatchingResourcePatternResolver.getResource("mybatis/mappers/OrgMapper.xml");
+        sqlSessionFactoryBean.setMapperLocations(resource);
 
         return sqlSessionFactoryBean.getObject();
     }
@@ -103,8 +105,8 @@ public class MybatisSpringConfiguration {
      * @return
      */
 //    @Bean
-    public MapperFactoryBean<UserMapper> userMapper(SqlSessionFactory sqlSessionFactory){
-        MapperFactoryBean<UserMapper> factoryBean = new MapperFactoryBean<>();
+    public MapperFactoryBean<OrgMapper> userMapper(SqlSessionFactory sqlSessionFactory){
+        MapperFactoryBean<OrgMapper> factoryBean = new MapperFactoryBean<>();
         factoryBean.setSqlSessionFactory(sqlSessionFactory);
         return factoryBean;
     }
