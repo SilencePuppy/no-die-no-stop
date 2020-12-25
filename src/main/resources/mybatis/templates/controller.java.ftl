@@ -2,11 +2,12 @@ package ${package.Controller};
 
 import com.huice.common.util.JsonBean;
 import com.huice.common.enums.ResultCode;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.web.bind.annotation.*;
 import ${package.Service}.${table.serviceName};
-import com.huice.database.entity.${entity};
+import ${package.Entity}.${entity};
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -23,12 +24,11 @@ import ${superControllerClassPackage};
 </#if>
 
 /**
- * <p>
- * ${table.comment!} 前端控制器
- * </p>
  *
+ * ${table.comment!} 前端控制器
+ * @classname ${table.controllerName}
  * @author ${author}
- * @since ${date}
+ * @since ${cfg.datetime}
  */
 <#if restControllerStyle>
 @Api(tags = {"${table.comment!}"})
@@ -40,67 +40,44 @@ import ${superControllerClassPackage};
 
     private Logger log = LoggerFactory.getLogger(getClass());
     @Resource
-    private ${table.serviceName} ${(table.serviceName?substring(0))?uncap_first};
+    private ${table.serviceName} ${table.serviceName?uncap_first};
 
+    @ApiOperation(value = "查询${table.comment!}分页数据")
+    @ApiImplicitParams({@ApiImplicitParam(name = "currentPage", value = "页码"),
+        @ApiImplicitParam(name = "pageRows", value = "每页条数")
+    })
+    @PostMapping("query")
+    public JsonBean findListByPage(@RequestParam Integer currentPage,@RequestParam Integer pageRows){
+        IPage<${entity}> result = ${table.serviceName?uncap_first}.findListByPage(currentPage, pageRows);
+        return JsonBean.returnResponse(result.getRecords());
+    }
 
     @ApiOperation(value = "新增${table.comment!}")
     @PostMapping("create")
     public JsonBean add(@RequestBody ${entity} ${entity?uncap_first}){
-        try {
-            return ${(table.serviceName?substring(0))?uncap_first}.add(${entity?uncap_first});
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return JsonBean.returnResponse(false, ResultCode.SERVICE_ERR);
-        }
+        ResultCode resultCode = ${table.serviceName?uncap_first}.add(${entity?uncap_first});
+        return JsonBean.returnResponse(ResultCode.SERVICE_OK.equals(resultCode), resultCode);
     }
 
     @ApiOperation(value = "删除${table.comment!}")
     @DeleteMapping("delete/{id}")
     public JsonBean delete(@PathVariable("id") Long id){
-        try {
-            return ${(table.serviceName?substring(0))?uncap_first}.delete(id);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return JsonBean.returnResponse(false, ResultCode.SERVICE_ERR);
-        }
+        ${table.serviceName?uncap_first}.delete(id);
+        return JsonBean.returnResponse();
     }
 
     @ApiOperation(value = "更新${table.comment!}")
     @PatchMapping("update")
     public JsonBean update(@RequestBody ${entity} ${entity?uncap_first}){
-        try {
-            return ${(table.serviceName?substring(0))?uncap_first}.updateData(${entity?uncap_first});
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return JsonBean.returnResponse(false, ResultCode.SERVICE_ERR);
-        }
-    }
-
-    @ApiOperation(value = "查询${table.comment!}分页数据")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "page", value = "页码"),
-        @ApiImplicitParam(name = "pageCount", value = "每页条数")
-    })
-    @PostMapping("query")
-    public JsonBean findListByPage(@RequestParam Integer page,
-                                   @RequestParam Integer pageCount){
-        try {
-            return ${(table.serviceName?substring(0))?uncap_first}.findListByPage(page, pageCount);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return JsonBean.returnResponse(false, ResultCode.SERVICE_ERR);
-        }
+        ResultCode resultCode = ${table.serviceName?uncap_first}.updateData(${entity?uncap_first});
+        return JsonBean.returnResponse(ResultCode.SERVICE_OK.equals(resultCode), resultCode);
     }
 
     @ApiOperation(value = "id查询${table.comment!}")
     @GetMapping("info/{id}")
     public JsonBean findById(@PathVariable Long id){
-        try {
-            return ${(table.serviceName?substring(0))?uncap_first}.findById(id);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return JsonBean.returnResponse(false, ResultCode.SERVICE_ERR);
-        }
+        ${entity} ${entity?uncap_first}= ${table.serviceName?uncap_first}.findById(id);
+        return JsonBean.returnResponse(${entity?uncap_first});
     }
 
 }

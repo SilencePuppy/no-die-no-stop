@@ -1,3 +1,5 @@
+<#macro mapperSharp value>${r"#{"}${value}}</#macro>
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="${package.Mapper}.${table.mapperName}">
@@ -35,5 +37,13 @@
             ${table.fieldNames}
         </sql>
 
+    </#if>
+    <#if cfg.needCheckRepeated>
+        <select id="count${cfg.checkRepeatedField?cap_first}" resultType="int">
+            select count(*) from ${table.name} where ${cfg.checkRepeatedColumn} =<@mapperSharp value=cfg.checkRepeatedField/>
+            <if test="id!=null">
+                and id != <@mapperSharp value='id'/>
+            </if>
+        </select>
     </#if>
 </mapper>

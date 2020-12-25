@@ -9,24 +9,20 @@ import io.swagger.annotations.ApiModelProperty;
 </#if>
 <#if entityLombokModel>
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 </#if>
 
 /**
- * <p>
- * ${table.comment!}
- * </p>
  *
+ * ${table.comment!}
+ * @classname ${entity}
  * @author ${author}
- * @since ${date}
+ * @since ${cfg.datetime}
  */
 <#if entityLombokModel>
 @Data
     <#if superEntityClass??>
 @EqualsAndHashCode(callSuper = true)
-    <#else>
-@EqualsAndHashCode(callSuper = false)
     </#if>
 @Accessors(chain = true)
 </#if>
